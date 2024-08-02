@@ -5,7 +5,7 @@ from vllm import LLM, SamplingParams
 app = Flask(__name__)
 
 model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-llm = LLM(model=model_name) #, device="cpu")  # Specify CPU for local testing
+llm = LLM(model=model_name)  # Specify CPU for local testing
 documents = {}
 
 def load_documents(directory):
