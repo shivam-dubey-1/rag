@@ -1,0 +1,34 @@
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: inf2-nodepool
+spec:
+  disruption:
+    consolidateAfter: 30s
+    consolidationPolicy: WhenEmpty
+    expireAfter: Never
+  template:
+    metadata:
+      labels:
+        instanceType: inferentia-inf2
+        provisionerType: Karpenter
+    spec:
+      nodeClassRef:
+        name: inf2-nodeclass
+      requirements:
+      - key: node.kubernetes.io/instance-type
+        operator: In
+        values: ["inf2.xlarge"]
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values: ["on-demand"]
+      - key: kubernetes.io/os
+        operator: In
+        values: ["linux"]
+      - key: kubernetes.io/arch
+        operator: In
+        values: ["amd64"]
+      taints:
+      - key: aws.amazon.com/neuron
+        value: "true"
+        effect: "NoSchedule"
