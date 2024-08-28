@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        #chat-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            height: 500px;
+            overflow-y: auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+        .message.user {
+            background-color: #e1ffc7;
+            margin-left: auto;
+            text-align: right;
+        }
+        .message.bot {
+            background-color: #d1e9ff;
+            margin-right: auto;
+            text-align: left;
+        }
+        #prompt-form {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        #prompt-input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        #file-input {
+            margin-bottom: 10px;
+        }
+        #submit-btn {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #submit-btn:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: #d9534f;
+        }
+        .retry {
+            color: #0275d8;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .retry:hover {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chatbot</h1>
+    <div id="chat-container"></div>
+    <form id="prompt-form" enctype="multipart/form-data">
+        <input type="text" id="prompt-input" name="prompt" placeholder="Enter your prompt here" required>
+        <input type="file" name="file" id="file-input" accept=".txt">
+        <button type="submit" id="submit-btn">Send</button>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            $('#prompt-form').on('submit', function(e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: '/',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $('#chat-container').append('<div class="message user"><strong>You:</strong> ' + $('#prompt-input').val() + '</div>');
+                        if (response.response.startsWith("Error:")) {
+                            $('#chat-container').append('<div class="message bot error"><strong>Bot:</strong> ' + response.response + ' <span class="retry" id="retry">Regenerate Response</span></div>');
+                        } else {
+                            $('#chat-container').append('<div class="message bot"><strong>Bot:</strong> ' + response.response + '</div>');
+                        }
+                        $('#prompt-input').val('');
+                        $('#file-input').val('');
+                        $('#chat-container').scrollTop($('#chat-container')[0].scrollHeight);
+                    }
+                });
+
+                $(document).on('click', '#retry', function(e) {
+                    e.preventDefault();
+                    $('#prompt-form').submit(); // Resubmit the form to regenerate response
+                });
+            });
+        });
+    </script>
+</body>
+</html>
